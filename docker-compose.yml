@@ -1,0 +1,10 @@
+version: '2.2'
+
+services:
+  demo2:
+    image: fpq-alpine
+    init: true
+    build: .
+    ports:
+      - "8082:8082"
+
