@@ -6,9 +6,17 @@ from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User
 
+import app.utils6L.utils6L as utils
+import logging
+import os
+
+logger_name = os.getenv("LOGGER_NAME")
+logger = logging.getLogger(logger_name)
+
 AUTH_LOGIN = 'auth.login'
 MAIN_INDEX = 'main.index'
 
+@utils.log_wrap
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -17,14 +25,17 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash(_('Invalid username or password'))
+            flash('Invalid username or password')
             return redirect(url_for(AUTH_LOGIN))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
+        # logger.info(f"login.py() line 24 next page = {next_page}")
+        # print(f"login.py() line 33 next page = {next_page}")
         if not next_page or url_parse(next_page).netloc != '':
+            # logger.info(f"login.py() line 35 next page = {next_page}")
             next_page = url_for(MAIN_INDEX)
         return redirect(next_page)
-    return render_template('auth/login.html', title=_('Sign In'), form=form)
+    return render_template('auth/login.html', title='Sign In', form=form)
 
 
 @bp.route('/logout')
@@ -43,9 +54,9 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash(_('Congratulations, you are now a registered user!'))
+        flash('Congratulations, you are now a registered user!')
         return redirect(url_for(AUTH_LOGIN))
-    return render_template('auth/register.html', title=_('Register'),
+    return render_template('auth/register.html', title='Register',
                            form=form)
 
 
@@ -58,11 +69,10 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash(
-            _('Check your email for the instructions to reset your password'))
+        flash('Check your email for the instructions to reset your password')
         return redirect(url_for(AUTH_LOGIN))
     return render_template('auth/reset_password_request.html',
-                           title=_('Reset Password'), form=form)
+                           title='Reset Password', form=form)
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -76,6 +86,6 @@ def reset_password(token):
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash(_('Your password has been reset.'))
+        flash('Your password has been reset.')
         return redirect(url_for(AUTH_LOGIN))
     return render_template('auth/reset_password.html', form=form)
