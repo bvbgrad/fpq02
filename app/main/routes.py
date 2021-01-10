@@ -2,10 +2,11 @@ from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
+
 from app import db
-from app.main.forms import EditProfileForm, EmptyForm, PostForm
 from app.models import User, Post
 from app.main import bp
+from app.main.forms import EditProfileForm, EmptyForm, PostForm
 
 import app.utils6L.utils6L as utils
 import logging
@@ -14,8 +15,6 @@ import os
 logger_name = os.getenv("LOGGER_NAME")
 logger = logging.getLogger(logger_name)
 
-MAIN_INDEX = 'main.index'
-
 @bp.before_app_request
 def before_request():
     if current_user.is_authenticated:
@@ -23,10 +22,22 @@ def before_request():
         db.session.commit()
 
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
-@login_required
+@utils.log_wrap
+@bp.route('/', methods=['GET'])
+@bp.route('/index', methods=['GET'])
 def index():
+    try:
+        hostname = os.environ['HOSTNAME']
+    except Exception:
+        hostname = 'host demo'
+    current_time = datetime.now().strftime("%Y%m%d %H:%M:%S")
+    msg = f"FPQ '{hostname}', time = {current_time}"
+    return render_template('host.html', title="Show host", msg=msg)
+
+
+@bp.route('/blog', methods=["GET"])
+@login_required
+def blog():
     form = PostForm()
     if form.validate_on_submit():
         # language = guess_language(form.post.data)
@@ -36,29 +47,18 @@ def index():
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(url_for(MAIN_INDEX))
+        return redirect(url_for('main_index'))
     page = request.args.get('page', 1, type=int)
     posts = current_user.followed_posts().paginate(
         page, current_app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for(MAIN_INDEX, page=posts.next_num) \
+    next_url = url_for('main_index', page=posts.next_num) \
         if posts.has_next else None
-    prev_url = url_for(MAIN_INDEX, page=posts.prev_num) \
+    prev_url = url_for('main_index', page=posts.prev_num) \
         if posts.has_prev else None
     return render_template('index.html', title='Home', form=form,
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
-
-@bp.route("/host", methods=["GET"])
-@utils.log_wrap
-def home():
-    try:
-        hostname = os.environ['HOSTNAME']
-    except Exception:
-        hostname = 'demo'
-    current_time = datetime.now().strftime("%Y%m%d %H:%M:%S")
-    msg = f"<h3>Flask host '{hostname}', time = {current_time}</h3>"
-    return msg, 200
 
 @bp.route('/explore')
 @login_required
@@ -120,14 +120,14 @@ def user_popup(username):
 def follow(username):
     blog_user = User.query.filter_by(username=username).first()
     if blog_user is None:
-        flash('User %(username)s not found.', username=username)
+        flash(f"User {username} not found.")
         return redirect(url_for('main.index'))
     if blog_user == current_user:
         flash('You cannot follow yourself!')
         return redirect(url_for('main.user', username=username))
     current_user.follow(blog_user)
     db.session.commit()
-    flash('You are following %(username)s!', username=username)
+    flash(f'You are following {username}!')
     return redirect(url_for('main.user', username=username))
 
 
@@ -136,14 +136,14 @@ def follow(username):
 def unfollow(username):
     blog_user = User.query.filter_by(username=username).first()
     if blog_user is None:
-        flash('User %(username)s not found.', username=username)
+        flash(f'User {username} not found.')
         return redirect(url_for('main.index'))
     if blog_user == current_user:
         flash('You cannot unfollow yourself!')
         return redirect(url_for('main.user', username=username))
     current_user.unfollow(blog_user)
     db.session.commit()
-    flash('You are not following %(username)s.', username=username)
+    flash(f'You are not following {username}.')
     return redirect(url_for('main.user', username=username))
 
 

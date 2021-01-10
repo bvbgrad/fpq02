@@ -21,17 +21,24 @@
     <div class="collapse navbar-collapse bg-light" id="collapsibleNavbar">
         <ul class="nav nav-pills nav-justified">
             <li class='nav-item'>
-                <a href="{{ url_for('main.index') }}">{{ 'Quiz' }}</a></li>
+                <a href="{{ url_for('main.explore') }}">{{ 'Quiz' }}</a></li>
             <li class='nav-item'>
                 <a href="{{ url_for('main.explore') }}">{{ 'Results' }}</a></li>
             <li class='nav-item'>
                 <a href="{{ url_for('auth.login') }}">{{ 'Help' }}</a></li>
-            <li class='nav-item'>
-                <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>
-            <!-- Dropdown -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                    Edit</a>
+            {% if current_user.is_anonymous %}
+                <li class='nav-item'>
+                    <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        Edit</a></li>
+            {% else %}
+                <li class='nav-item'>
+                    <a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    {{ current_user.username }}</a>
+            {% endif %}
                 <div class="dropdown-menu">
                     {% if current_user.is_anonymous %}
                         <a class="dropdown-item" 
