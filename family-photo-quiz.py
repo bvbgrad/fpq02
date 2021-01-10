@@ -6,7 +6,7 @@ if __name__ == "__main__":
     utils.setup_logging()
     app = create_app()
     app.config.update (
-        EXPLAIN_TEMPLATE_LOADING = True
+        EXPLAIN_TEMPLATE_LOADING = False
     )
     app.run(host="0.0.0.0", port=8082)
 
