@@ -10,21 +10,29 @@
 
         {% block styles %}
         <!-- Bootstrap CSS -->
+        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> -->
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+            
+            <!-- <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script> -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         {% endblock %}
-
-        <title>Family Photo Quiz</title>
+            
+    <title>Family Photo Quiz</title>
     {% endblock %}
-</head>
+        </head>
+        
+        <body>
+            <!-- Your page content -->
+            {% block navbar %}{% endblock %}
+            {% block content %}{% endblock %}
+            {% block scripts %}
+            <!-- <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script> -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
-<body>
-    <!-- Your page content -->
-    {% block navbar %}{% endblock %}
-    {% block content %}{% endblock %}
-    {% block scripts %}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <!-- <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     {% endblock %}
 </body>
 
