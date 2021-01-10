@@ -3,8 +3,8 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from app import db
-from app.main.forms import EditProfileForm, EmptyForm
-from app.models import User
+from app.main.forms import EditProfileForm, EmptyForm, PostForm
+from app.models import User, Post
 from app.main import bp
 
 import app.utils6L.utils6L as utils
@@ -29,11 +29,10 @@ def before_request():
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        language = guess_language(form.post.data)
-        if language == 'UNKNOWN' or len(language) > 5:
-            language = ''
-        post = Post(body=form.post.data, author=current_user,
-                    language=language)
+        # language = guess_language(form.post.data)
+        # if language == 'UNKNOWN' or len(language) > 5:
+        #     language = ''
+        post = Post(body=form.post.data, author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -60,6 +59,20 @@ def home():
     current_time = datetime.now().strftime("%Y%m%d %H:%M:%S")
     msg = f"<h3>Flask host '{hostname}', time = {current_time}</h3>"
     return msg, 200
+
+@bp.route('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, current_app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('main.explore', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('main.explore', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('index.html', title='Explore',
+                           posts=posts.items, next_url=next_url,
+                           prev_url=prev_url)
 
 
 @bp.route('/user/<username>')
@@ -93,3 +106,90 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
+
+@bp.route('/user/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    form = EmptyForm()
+    return render_template('user_popup.html', user=user, form=form)
+
+
+@bp.route('/follow/<username>')
+@login_required
+def follow(username):
+    blog_user = User.query.filter_by(username=username).first()
+    if blog_user is None:
+        flash('User %(username)s not found.', username=username)
+        return redirect(url_for('main.index'))
+    if blog_user == current_user:
+        flash('You cannot follow yourself!')
+        return redirect(url_for('main.user', username=username))
+    current_user.follow(blog_user)
+    db.session.commit()
+    flash('You are following %(username)s!', username=username)
+    return redirect(url_for('main.user', username=username))
+
+
+@bp.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    blog_user = User.query.filter_by(username=username).first()
+    if blog_user is None:
+        flash('User %(username)s not found.', username=username)
+        return redirect(url_for('main.index'))
+    if blog_user == current_user:
+        flash('You cannot unfollow yourself!')
+        return redirect(url_for('main.user', username=username))
+    current_user.unfollow(blog_user)
+    db.session.commit()
+    flash('You are not following %(username)s.', username=username)
+    return redirect(url_for('main.user', username=username))
+
+
+@bp.route('/send_message/<recipient>', methods=['GET', 'POST'])
+@login_required
+def send_message(recipient):
+    blog_user = User.query.filter_by(username=recipient).first_or_404()
+    form = MessageForm()
+    if form.validate_on_submit():
+        msg = Message(author=current_user, recipient=blog_user,
+                      body=form.message.data)
+        db.session.add(msg)
+        blog_user.add_notification('unread_message_count', blog_user.new_messages())
+        db.session.commit()
+        flash('Your message has been sent.')
+        return redirect(url_for('main.user', username=recipient))
+    return render_template('send_message.html', title='Send Message',
+                           form=form, recipient=recipient)
+
+
+@bp.route('/messages')
+@login_required
+def messages():
+    current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification('unread_message_count', 0)
+    db.session.commit()
+    page = request.args.get('page', 1, type=int)
+    private_messages = current_user.messages_received.order_by(
+        Message.timestamp.desc()).paginate(
+        page, current_app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('main.messages', page=private_messages.next_num) \
+        if private_messages.has_next else None
+    prev_url = url_for('main.messages', page=private_messages.prev_num) \
+        if private_messages.has_prev else None
+    return render_template('messages.html', messages=private_messages.items,
+                           next_url=next_url, prev_url=prev_url)
+
+
+@bp.route('/notifications')
+@login_required
+def notifications():
+    since = request.args.get('since', 0.0, type=float)
+    user_notifications = current_user.notifications.filter(
+        Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'timestamp': n.timestamp
+    } for n in user_notifications])

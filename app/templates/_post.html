@@ -13,20 +13,10 @@
                         </a>
                     </span>
                 {% endset %}
-                {{ '%(username)s said %(when)s',
-                    username=user_link, when=moment(post.timestamp).fromNow() }}
+                {{ '%(username)s said %(when)s' |
+                    format(username=user_link, when=moment(post.timestamp).fromNow()) }}
                 <br>
                 <span id="post{{ post.id }}">{{ post.body }}</span>
-                {% if post.language and post.language != g.locale %}
-                <br><br>
-                <span id="translation{{ post.id }}">
-                    <a href="javascript:translate(
-                                '#post{{ post.id }}',
-                                '#translation{{ post.id }}',
-                                '{{ post.language }}',
-                                '{{ g.locale }}');">{{ 'Translate' }}</a>
-                </span>
-                {% endif %}
             </td>
         </tr>
     </table>
