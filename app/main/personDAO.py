@@ -1,25 +1,32 @@
 """
 
 """
+from sqlalchemy.sql import text
 
-from web import app
-from .models import Person
+import app.utils6L.utils6L as utils
+import logging
+import os
+
+logger_name = os.getenv("LOGGER_NAME")
+logger = logging.getLogger(logger_name)
+
+from app.models import Person
 
 
 def get_all_persons():
-    app.logger.info(__name__ + ".getAllPersons()")
+    logger.info(__name__ + ".getAllPersons()")
     all_person_list = Person.query.all()
     return all_person_list
 
 
 def get_all_persons_count():
-    app.logger.info(__name__ + ".getAllPersons()")
+    logger.info(__name__ + ".getAllPersons()")
     all_person_count = Person.query.count()
     return all_person_count
 
 
 def get_person_gen_data(generation, count=False, before=False, after=False):
-    app.logger.info(__name__ + ".get_person_gen_data()")
+    logger.info(__name__ + ".get_person_gen_data()")
     filter_before = "Person.year_born < {}".format(generation)
     filter_after = "Person.year_born >= {}".format(generation)
     next_gen_filter = "Person.year_born < {}".format(generation + 25)
@@ -30,8 +37,10 @@ def get_person_gen_data(generation, count=False, before=False, after=False):
         gen_filter = filter_after
     else:
         gen_filter = "{} and {}".format(filter_after, next_gen_filter)
+
 # todo SAWarning: when Textual SQL expression declared as text -> query returns zero results
-        app.logger.info(__name__ + ".get_person_gen_data(): filter: " + gen_filter)
+    logger.info(__name__ + ".get_person_gen_data(): filter: " + gen_filter)
+    gen_filter = text(gen_filter)
     if count:
         generation_data = Person.query.filter(gen_filter).count()
     else:
@@ -41,7 +50,7 @@ def get_person_gen_data(generation, count=False, before=False, after=False):
 
 
 def get_bad_answers(gender, year_born):
-    app.logger.info(__name__ + ".get_bad_answers()")
+    logger.info(__name__ + ".get_bad_answers()")
 
     before_year_born = year_born - 10
     after_year_born = year_born + 10

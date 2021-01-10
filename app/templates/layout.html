@@ -11,7 +11,7 @@
 
 {% block navbar %}
 <nav class="navbar navbar-expand-sm navbar-light">
-    <a class="navbar-brand bg-primary" href="{{ url_for('main.index') }}">-- Family Photo Quiz --</a>
+    <a class="navbar-brand bg-primary" href="{{ url_for('main.quiz_prep') }}">-- Family Photo Quiz --</a>
 
     <!-- Toggler/collapsibe Button -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
@@ -21,11 +21,13 @@
     <div class="collapse navbar-collapse bg-light" id="collapsibleNavbar">
         <ul class="nav nav-pills nav-justified">
             <li class='nav-item'>
-                <a href="{{ url_for('main.explore') }}">{{ 'Quiz' }}</a></li>
-            <li class='nav-item'>
-                <a href="{{ url_for('main.explore') }}">{{ 'Results' }}</a></li>
-            <li class='nav-item'>
-                <a href="{{ url_for('auth.login') }}">{{ 'Help' }}</a></li>
+                <a href="{{ url_for('main.quiz_prep') }}">Quiz</a></li>
+            <li class='nav-item' disabled>
+                <a class="nav-link" href="#" tabindex="-1 aria-disabled="true">
+                Summary</a></li>
+            <li class='nav-item' disabled>
+                <a class="nav-link" href="#" tabindex="-1 aria-disabled="true">
+                Help</a></li>
             {% if current_user.is_anonymous %}
                 <li class='nav-item'>
                     <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>

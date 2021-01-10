@@ -3,12 +3,20 @@ from pathlib import Path
 
 from flask import render_template, request, redirect, url_for, flash
 
-from web import app
+from app import db
+from app.main import bp
 # from flask import render_template, request, redirect, url_for, flash, make_response, session
 # from flask_login import login_required, login_user,current_user, logout_user
-from .models import Photo, Person, db
+from app.models import Photo, Person
 from .personDAO import get_all_persons_count, get_person_gen_data, get_bad_answers
 from .photoDAO import get_all_tagged_photos, get_all_tagged_photos_count, get_photo_quiz_data
+
+import app.utils6L.utils6L as utils
+import logging
+import os
+
+logger_name = os.getenv("LOGGER_NAME")
+logger = logging.getLogger(logger_name)
 
 # from .photoDAO import get_photo_quiz_data
 
@@ -25,16 +33,16 @@ answers = []
 # todo change all print statements to log entries
 
 
-@app.route('/', methods=['POST', 'GET'])
-@app.route('/prep', methods=['POST', 'GET'])
+# @bp.route('/', methods=['POST', 'GET'])
+@bp.route('/prep', methods=['POST', 'GET'])
 def quiz_prep():
-    app.logger.info(__name__ + ".quiz_prep()")
+    logger.info(__name__ + ".quiz_prep()")
     global num_questions
 
     if request.form:
         num_questions = int(request.form.get('num_questions'))
         chosen_generation = str(request.form.get('optradio'))
-        app.logger.info(
+        logger.info(
             __name__ + ".quiz_prep() number of questions: '{}', chosen generation: '{}'"
             .format(num_questions, chosen_generation))
 
@@ -51,7 +59,7 @@ def quiz_prep():
             return redirect(url_for('quiz_prep'))
 
         number_tagged_photos = len(tagged_photo_list)
-        app.logger.info(__name__ + " {} tagged photos".format(number_tagged_photos))
+        logger.info(__name__ + " {} tagged photos".format(number_tagged_photos))
         if number_tagged_photos > num_questions:
             number_tagged_photos = num_questions
 
@@ -60,18 +68,18 @@ def quiz_prep():
         for photo in random.sample(tagged_photo_list, number_tagged_photos):
             quiz_photos.append(photo)
             answers.append('test')
-        app.logger.info(__name__ + " {} quiz photos".format(len(quiz_photos)))
+        logger.info(__name__ + " {} quiz photos".format(len(quiz_photos)))
         # todo print(quiz_photos)
-        return redirect(url_for('quiz'))
+        return redirect(url_for('main.quiz'))
 
     persons = Person.query.all()
-    app.logger.info(__name__ + " {} persons".format(len(persons)))
+    logger.info(__name__ + " {} persons".format(len(persons)))
     # for i in range(5):
-    #     app.logger.info(__name__ + " Person #{}: {}".format(i, persons[i]))
+    #     logger.info(__name__ + " Person #{}: {}".format(i, persons[i]))
 
     # get list of all photos from the database
     photos = Photo.query.all()
-    app.logger.info(__name__ + " {} photos".format(len(photos)))
+    logger.info(__name__ + " {} photos".format(len(photos)))
 
     generations = ["All", 1800, 1825, 1850, 1875, 1900, 1925, 1950, 1975, 2000]
     number_per_generation = []
@@ -89,29 +97,29 @@ def quiz_prep():
             number_per_generation.append(data_count)
             number_tagged_photos.append(quiz_count)
             if data_count < 15:
-                app.logger.debug("generation: {} has {} names, data = {}"
+                logger.debug("generation: {} has {} names, data = {}"
                                  .format(generation, data_count, get_person_gen_data(generation)))
 
-    app.logger.info(__name__ + " {} number per generation ".format(number_per_generation))
-    app.logger.info(__name__ + " {} number tagged photos ".format(number_tagged_photos))
+    logger.info(__name__ + " {} number per generation ".format(number_per_generation))
+    logger.info(__name__ + " {} number tagged photos ".format(number_tagged_photos))
 
     mapped = zip(generations, number_per_generation, number_tagged_photos)
     zipped_gen = list(mapped)
-    app.logger.info("zipped tuples: {}".format(zipped_gen))
+    logger.info("zipped tuples: {}".format(zipped_gen))
 
     return render_template('templates_quiz/quiz_prep.html', num_questions=num_questions,
                            zipped_gen=zipped_gen)
 
 
-@app.route('/quiz', methods=['POST', 'GET'])
+@bp.route('/quiz', methods=['POST', 'GET'])
 def quiz():
-    app.logger.info(__name__ + ".quiz()")
+    logger.info(__name__ + ".quiz()")
     global num_questions
 
     if request.form:
         question_id = int(request.form.get('question_id'))
         answer = request.form.get('optradio')
-        app.logger.info(
+        logger.info(
             __name__ + ".quiz() Question {} answer is '{}'"
             .format(question_id, answer))
         answers[question_id] = answer
@@ -177,13 +185,13 @@ def quiz():
             question_id=random_photo_id, photo=photo, answer_list=answer_list)
 
     # return render_template('templates_quiz/scores.html')
-    return redirect(url_for('display_scores'))
+    return redirect(url_for('main.display_scores'))
 
 
-@app.route('/scores', methods=['POST', 'GET'])
+@bp.route('/scores', methods=['POST', 'GET'])
 def display_scores():
     global photo_list
-    app.logger.info(__name__ + ".display_scores()")
+    logger.info(__name__ + ".display_scores()")
     correct_answers = 0
     wrong_answers = 0
     for answer in answers:
@@ -200,9 +208,9 @@ def display_scores():
     print("Scores -- Quiz Photos: ", quiz_photos)
 
     num_photos = len(quiz_photos)
-    app.logger.info(__name__ + " {} photos".format(num_photos))
+    logger.info(__name__ + " {} photos".format(num_photos))
     # for i in range(5):
-    #     app.logger.info(__name__ + " Photo #{}: {}".format(i, photos[i]))
+    #     logger.info(__name__ + " Photo #{}: {}".format(i, photos[i]))
     #
     photo_list = []
     i = 0
@@ -233,12 +241,12 @@ def display_scores():
                            photo_list=photo_list)
 
 
-@app.route('/gallery', methods=['GET'])
-@app.route('/gallery/<gallery_type>', methods=['GET'])
+@bp.route('/gallery', methods=['GET'])
+@bp.route('/gallery/<gallery_type>', methods=['GET'])
 def gallery(gallery_type='all'):
     global photo_list
 
-    app.logger.info(__name__ + ".gallery() {} photos".format(type))
+    logger.info(__name__ + ".gallery() {} photos".format(type))
 
     if gallery_type == 'tagged':
         photos = get_all_tagged_photos()
@@ -246,9 +254,9 @@ def gallery(gallery_type='all'):
         photos = Photo.query.all()
 
     num_photos = len(photos)
-    app.logger.info(__name__ + " {} photos".format(num_photos))
+    logger.info(__name__ + " {} photos".format(num_photos))
     # for i in range(5):
-    #     app.logger.info(__name__ + " Photo #{}: {}".format(i, photos[i]))
+    #     logger.info(__name__ + " Photo #{}: {}".format(i, photos[i]))
     #
     photo_list = []
     i = 0
@@ -269,35 +277,35 @@ def gallery(gallery_type='all'):
     return render_template('templates_quiz/gallery.html', photo_list=photo_list)
 
 
-@app.route('/about')
-@app.route('/about/<name>')
+@bp.route('/about')
+@bp.route('/about/<name>')
 def about(name=None):
-    app.logger.info(__name__ + ".about()")
+    logger.info(__name__ + ".about()")
     # users = User.query.all()  # todo No user table available
-    # app.logger.info(".about(): {} users: {}".format(len(users), users.__str__()))
+    # logger.info(".about(): {} users: {}".format(len(users), users.__str__()))
     # return render_template('templates_quiz/about.html', name=name, users=users)
     return render_template('templates_quiz/about.html', name=name)
 
 
-@app.route('/mx', methods=['post', 'get'])
-@app.route('/mx/<photo_number>', methods=['post', 'get'])
+@bp.route('/mx', methods=['post', 'get'])
+@bp.route('/mx/<photo_number>', methods=['post', 'get'])
 def tag_photos(photo_number=0):
     global photo_list
 
-    app.logger.info(__name__ + ".tag_photos() Photo number = {}".format(photo_number))
+    logger.info(__name__ + ".tag_photos() Photo number = {}".format(photo_number))
 
     # get a list of all persons from the database ordered by surname, given names
     persons = Person.query.order_by(Person.surname, Person.given_names).all()
-    app.logger.info(__name__ + " {} persons".format(len(persons)))
+    logger.info(__name__ + " {} persons".format(len(persons)))
     for i in range(5):
-        app.logger.debug(__name__ + " Person #{}: {}".format(i, persons[i]))
+        logger.debug(__name__ + " Person #{}: {}".format(i, persons[i]))
 
     # get a list of all the photos from the database
     photos = Photo.query.all()  # todo shadow outer scope photos
     num_photos = len(photos)
-    app.logger.info(__name__ + " {} available photos".format(num_photos))
+    logger.info(__name__ + " {} available photos".format(num_photos))
     for i in range(5):
-        app.logger.debug(__name__ + " Photo #{}: {}".format(i, photos[i]))
+        logger.debug(__name__ + " Photo #{}: {}".format(i, photos[i]))
 
     photo_list = []
     i = 0
@@ -316,15 +324,15 @@ def tag_photos(photo_number=0):
         photo_list.append(
             (i, num_photos, path.name, photo.comment, photo_person, photo.PersonIdFK))
 
-    app.logger.info(__name__ + " {} tagged photos".format(len(photo_list)))
+    logger.info(__name__ + " {} tagged photos".format(len(photo_list)))
     return render_template('templates_mx/tag_photos.html',
                            photo_list=photo_list, persons=persons,
                            photo_number=photo_number)
 
 
-@app.route('/mx/update', methods=['post', 'get'])
+@bp.route('/mx/update', methods=['post', 'get'])
 def update_photo_tag():
-    app.logger.info(__name__ + ".update_photo_tag()")
+    logger.info(__name__ + ".update_photo_tag()")
 
     tagged_person = request.form.get('selected_person')
     tagged_person_id = int(tagged_person)
@@ -333,7 +341,7 @@ def update_photo_tag():
     tagged_comment = request.form.get('comment')
 
     if tagged_person and tagged_photo:
-        app.logger.info(
+        logger.info(
             __name__ + " tagged person = {}, tagged photo = {}, comment = {}"
             .format(tagged_person_id, tagged_photo, tagged_comment))
         photos = Photo.query.all()  # todo shadow outer scope photos
@@ -342,7 +350,7 @@ def update_photo_tag():
         photo.comment = tagged_comment
         db.session.commit()
 
-        app.logger.info(
+        logger.info(
             __name__ + " photo #{} has been updated: {}".format(tagged_photo_id, photo))
         return redirect("/mx")
         # return redirect("/mx/" + str(tagged_photo_id))
@@ -350,10 +358,10 @@ def update_photo_tag():
 
 
 def check_logger():
-    app.logger.info(__name__ + ".check_logger()")
-    app.logger.debug("this is a DEBUG message")
-    app.logger.info("this is an INFO message")
-    app.logger.warning("this is a WARNING message")
-    app.logger.error("this is an ERROR message")
-    app.logger.critical("this is a CRITICAL message")
+    logger.info(__name__ + ".check_logger()")
+    logger.debug("this is a DEBUG message")
+    logger.info("this is an INFO message")
+    logger.warning("this is a WARNING message")
+    logger.error("this is an ERROR message")
+    logger.critical("this is a CRITICAL message")
     return "See console or log file for log messages"
