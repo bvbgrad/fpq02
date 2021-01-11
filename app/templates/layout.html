@@ -33,7 +33,7 @@
                     <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        Edit</a></li>
+                        Edit</a>
             {% else %}
                 <li class='nav-item'>
                     <a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
@@ -50,12 +50,12 @@
                             href="#">
                             Clear guest scores</a>
                         <a class="dropdown-item" 
-                            href="{{ url_for('auth.login') }}">
+                            href="{{ url_for('main.mx_actions') }}">
                             Quiz Maintenance</a>
                     {% else %}
                         <a class="dropdown-item" 
-                            href="#">
-                            Update Photos</a>
+                            href="{{ url_for('main.mx_actions') }}">
+                            Update Photo data</a>
                         <a class="dropdown-item" 
                             href="{{ url_for('main.user', username=current_user.username) }}">
                             'Profile'</a>

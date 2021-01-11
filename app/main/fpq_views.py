@@ -1,7 +1,9 @@
 import random
 from pathlib import Path
+import json
 
 from flask import render_template, request, redirect, url_for, flash
+from flask_login import current_user, login_required
 
 from app import db
 from app.main import bp
@@ -288,7 +290,13 @@ def about(name=None):
 
 
 @bp.route('/mx', methods=['post', 'get'])
+@login_required
+def mx_actions():
+    return render_template('templates_mx/mx_actions.html')
+
+
 @bp.route('/mx/<photo_number>', methods=['post', 'get'])
+@login_required
 def tag_photos(photo_number=0):
     global photo_list
 
@@ -331,6 +339,7 @@ def tag_photos(photo_number=0):
 
 
 @bp.route('/mx/update', methods=['post', 'get'])
+@login_required
 def update_photo_tag():
     logger.info(__name__ + ".update_photo_tag()")
 
@@ -365,3 +374,28 @@ def check_logger():
     logger.error("this is an ERROR message")
     logger.critical("this is a CRITICAL message")
     return "See console or log file for log messages"
+
+
+@utils.log_wrap
+@bp.route('/load', methods=['post', 'get'])
+@login_required
+def load_photo_data():
+    logger.info("load photo data")
+
+    person_dict = {}
+    person_file_path = Path("data/rpi 20180615t0630 person.json")
+    logger.info(f"Loading person data from '{person_file_path.name}'")
+    try:
+        with open(person_file_path, "r") as json_file:
+            person_dict = json.load(json_file)
+            person_dict_rows = list(person_dict[0]["rows"])
+    except Exception as e:
+        logger.exception(f"error: {e}")
+
+    logger.info(f"Found {len(person_dict_rows)} persons in '{person_file_path.name}'")
+
+    # for person in person_dict_rows:
+    #     Person.
+
+
+    return redirect(url_for('main.mx_actions'))
