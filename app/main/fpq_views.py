@@ -5,13 +5,13 @@ import json
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 
-from app import db
 from app.main import bp
-# from flask import render_template, request, redirect, url_for, flash, make_response, session
-# from flask_login import login_required, login_user,current_user, logout_user
+
 from app.models import Photo, Person
 from .personDAO import get_all_persons_count, get_person_gen_data, get_bad_answers
+from .personDAO import add_persons
 from .photoDAO import get_all_tagged_photos, get_all_tagged_photos_count, get_photo_quiz_data
+from .photoDAO import get_all_photos_count, add_photos
 
 import app.utils6L.utils6L as utils
 import logging
@@ -357,7 +357,6 @@ def update_photo_tag():
         photo = Photo.query.filter_by(id=photos[tagged_photo_id - 1].id).first()  # todo index offset fudge?
         photo.PersonIdFK = tagged_person_id
         photo.comment = tagged_comment
-        db.session.commit()
 
         logger.info(
             __name__ + " photo #{} has been updated: {}".format(tagged_photo_id, photo))
@@ -377,25 +376,82 @@ def check_logger():
 
 
 @utils.log_wrap
-@bp.route('/load', methods=['post', 'get'])
+@bp.route('/load_persons_json', methods=['get'])
 @login_required
-def load_photo_data():
-    logger.info("load photo data")
+def load_persons_json():
+    logger.info("load load_persons_json data")
 
-    person_dict = {}
+    person_data = {}
     person_file_path = Path("data/rpi 20180615t0630 person.json")
     logger.info(f"Loading person data from '{person_file_path.name}'")
     try:
         with open(person_file_path, "r") as json_file:
-            person_dict = json.load(json_file)
-            person_dict_rows = list(person_dict[0]["rows"])
+            person_data = json.load(json_file)
+            person_list = list(person_data[0]["rows"])
     except Exception as e:
         logger.exception(f"error: {e}")
 
-    logger.info(f"Found {len(person_dict_rows)} persons in '{person_file_path.name}'")
+    logger.info(f"Found {len(person_list)} persons in '{person_file_path.name}'")
+    logger.info(f"There are {get_all_persons_count()} persons before the add action")
 
-    # for person in person_dict_rows:
-    #     Person.
+    for id, surname, given_names, gender, year_born in person_list:
+        person = Person(surname=surname, given_names=given_names, gender=gender, year_born=year_born)
+        add_person(person)
 
+    logger.info(f"There are {get_all_persons_count()} persons before the add action")
+    return redirect(url_for('main.mx_actions'))
+
+
+@utils.log_wrap
+@bp.route('/load_persons_csv', methods=['get'])
+@login_required
+def load_persons_csv():
+    logger.info("load persons_csv data")
+
+    person_file_path = Path("data/rpi 20180615t0630 person.csv")
+    logger.info(f"Loading person data from '{person_file_path.name}'")
+
+    person_list = []
+    try:
+        with open(person_file_path, "r") as csv_file:
+            person_line = csv_file.readlines()
+            for line in person_line:
+                person_list.append(line.strip())
+    except Exception as e:
+        logger.exception(f"error: {e}")
+
+    logger.info(f"There are {get_all_persons_count()} persons before the add action")
+    logger.info(f"Found {len(person_list)} persons in '{person_file_path.name}'")
+    if person_list[0] == "id,surname,given_names,gender,year_born":
+        person_list.pop(0)
+        add_persons(person_list)
+    logger.info(f"There are {get_all_persons_count()} persons after the add action")
+
+    return redirect(url_for('main.mx_actions'))
+
+@utils.log_wrap
+@bp.route('/load_photos_csv', methods=['get'])
+@login_required
+def load_photos_csv():
+    logger.info("load photos_csv data")
+
+    photo_file_path = Path("data/rpi 20180615t0630 photo.csv")
+    logger.info(f"Loading photo data from '{photo_file_path.name}'")
+
+    photo_list = []
+    try:
+        with open(photo_file_path, "r") as csv_file:
+            person_line = csv_file.readlines()
+            for line in person_line:
+                photo_list.append(line.strip())
+    except Exception as e:
+        logger.exception(f"error: {e}")
+
+    logger.info(f"There are {get_all_photos_count()} photos before the add action")
+    logger.info(f"Found {len(photo_list)} photos in '{photo_file_path.name}'")
+    if photo_list[0] == "id,filename,comment,personIdFK":
+        photo_list.pop(0)
+        add_photos(photo_list)
+    logger.info(f"There are {get_all_photos_count()} photos after the add action")
 
     return redirect(url_for('main.mx_actions'))

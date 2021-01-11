@@ -6,10 +6,10 @@
 
 {% block content %}
 
-<a href="{{ url_for('quiz') }}" style="float: right;" class="btn btn-info" role="button">
+<a href="{{ url_for('main.quiz') }}" style="float: right;" class="btn btn-info" role="button">
     Next Photo</a>
 <br><br>
-<a href="{{ url_for('display_scores') }}" style="float: right;">
+<a href="{{ url_for('main.display_scores') }}" style="float: right;">
     Exit the quiz</a>
 {% endblock %}
 

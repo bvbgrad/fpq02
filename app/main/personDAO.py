@@ -3,6 +3,7 @@
 """
 from sqlalchemy.sql import text
 
+from app import db
 import app.utils6L.utils6L as utils
 import logging
 import os
@@ -61,3 +62,24 @@ def get_bad_answers(gender, year_born):
                Person.year_born < after_year_born).all()
     # print("bad_answer_choices: ", bad_answer_choices)
     return bad_answer_choices
+
+def add_person(person):
+    logger.info(f"Add person: {person}")
+    #TODO prevent adding duplicate persons
+    db.session.add(person)
+    db.session.commit()
+
+    person_filter = text(f"Person.surname='{person.surname}' AND Person.given_names='{person.given_names}'")
+    person_list = Person.query.filter(person_filter).all()
+
+    return person_list
+
+
+def add_persons(person_data_list):
+    #TODO prevent adding duplicate persons
+
+    for line in person_data_list:
+        item = line.split(',')
+        person = Person(surname=item[1], given_names=item[2], gender=item[3], year_born=item[4])
+        db.session.add(person)
+    db.session.commit()

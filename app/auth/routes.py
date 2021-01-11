@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request
+from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
+
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
@@ -49,12 +50,21 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
+    # TODO if User table is empty, first user registered is designated the admin user
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register',
                            form=form)
+
+
+@utils.log_wrap
+@bp.route('/edit_user', methods=['GET', 'POST'])
+@login_required
+def edit_user():
+    # TODO Admin role allows changing the role
+    return "edit_user() under construction"
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])

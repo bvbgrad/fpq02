@@ -3,6 +3,7 @@ Database functions for photo data (including quiz candidates)
 """
 from sqlalchemy.sql import text
 
+from app import db
 import app.utils6L.utils6L as utils
 import logging
 import os
@@ -23,6 +24,12 @@ def get_all_tagged_photos():
     all_tagged_photo_list = Photo.query.filter(Photo.PersonIdFK > 0).all()
     return all_tagged_photo_list
 
+
+def get_all_photos_count():
+    logger.info(__name__ + ".getAllPhotos() count")
+    all_photo_count = Photo.query.count()
+    return all_photo_count
+    
 
 def get_all_tagged_photos_count():
     logger.info(__name__ + ".get_all_tagged_photos_count()")
@@ -73,3 +80,13 @@ def create_photo_filter(after, before, generation):
         gen_filter = "{} and {}".format(filter_after, next_gen_filter)
 # todo SAWarning: when Textual SQL expression declared as text -> query returns zero results
     return gen_filter
+
+
+def add_photos(photo_data_list):
+    #TODO prevent adding duplicate photos
+
+    for line in photo_data_list:
+        item = line.split(',')
+        photo = Photo(filename=item[1], comment=item[2], PersonIdFK=item[3])
+        db.session.add(photo)
+    db.session.commit()
