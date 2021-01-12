@@ -317,14 +317,18 @@ def tag_photos(photo_number=0):
 
     photo_list = []
     i = 0
-    for photo in photos:
+    for i, photo in enumerate(photos):
+        if i > 5: break
         if photo.PersonIdFK != 0:
             # person = persons[photo.PersonIdFK]
             person = Person.query.filter_by(id=photo.PersonIdFK).first()
-            # print("personIdFK = {}, person: {}".format(photo.PersonIdFK, person)) # todo logging?
-            photo_person = "{}, {} ({}) ({})" \
-                .format(person.surname, person.given_names,
-                        person.gender, person.year_born)
+            print("personIdFK = {}, person: {}".format(photo.PersonIdFK, person)) # todo logging?
+            try:
+                photo_person = "{}, {} ({}) ({})" \
+                    .format(person.surname, person.given_names,
+                            person.gender, person.year_born)
+            except AttributeError as e:
+                logger.exception(f"problem with person object for photo id = {photo.id}")
         else:
             photo_person = None
         path = Path(photo.filename)
@@ -435,7 +439,7 @@ def load_persons_csv():
 def load_photos_csv():
     logger.info("load photos_csv data")
 
-    photo_file_path = Path("data/rpi 20180615t0630 photo.csv")
+    photo_file_path = Path("data/photo20210112x0345.csv")
     logger.info(f"Loading photo data from '{photo_file_path.name}'")
 
     photo_list = []
@@ -448,8 +452,8 @@ def load_photos_csv():
         logger.exception(f"error: {e}")
 
     logger.info(f"There are {get_all_photos_count()} photos before the add action")
-    logger.info(f"Found {len(photo_list)} photos in '{photo_file_path.name}'")
-    if photo_list[0] == "id,filename,comment,personIdFK":
+    logger.info(f"Found {len(photo_list) - 1} photos in '{photo_file_path.name}'")
+    if photo_list[0] == "id,filename,comment,PersonIdFK,folder":
         photo_list.pop(0)
         add_photos(photo_list)
     logger.info(f"There are {get_all_photos_count()} photos after the add action")

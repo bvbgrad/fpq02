@@ -1,14 +1,11 @@
-{% extends 'layout.html' %}
+{% extends 'base.html' %}
 
-{% block head %}
-    <meta name="viewport" content="width=device-width, initial-scale=.5">
-    {% block styles %}
-        {{ super() }}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/tag_photo.css') }}">
-    {% endblock %}
-    {% block title %}
-        <h1>Tag Photos</h1>
-    {% endblock %}
+{% block header %}
+    <h1>{% block title %}Tag Photos{% endblock %}</h1>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=.5">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/tag_photo.css') }}">
 {% endblock %}
 
 {% block content %}

@@ -6,33 +6,45 @@
     <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="icon" href="data:,">
 
         {% block styles %}
         <!-- Bootstrap CSS -->
         <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> -->
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-            
-            <!-- <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script> -->
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        {% endblock %}
-            
-    <title>Family Photo Quiz</title>
-    {% endblock %}
-        </head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         
-        <body>
-            <!-- Your page content -->
-            {% block navbar %}{% endblock %}
-            {% block content %}{% endblock %}
-            {% block scripts %}
-            <!-- <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script> -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        
+        <!-- <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        {% endblock %}
 
-            <!-- <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> -->
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        {% block title %}
+            <title> Family Photo Quiz</title>
+        {% endblock %}
+
+        <!-- <link rel="icon" href="data:,"> -->
+        <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='/favicon.ico') }}"/>
+    {% endblock %}
+</head>
+        
+<body>
+    <!-- Your page content -->
+    <div id="navbar">{% block navbar %}{% endblock %}</div>
+
+    <div id="content">{% block content %}{% endblock %}</div>
+
+    <div id="footer">
+        {% block footer %}
+            &copy; Copyright 2021 by <a href="http://6LSolutions.com/">6L Solutions</a>.
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+        <!-- <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+        <!-- <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     {% endblock %}
 </body>
 
