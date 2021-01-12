@@ -108,7 +108,7 @@ class Photo(db.Model):
     folder = db.Column(db.String, default="app\static\images")
     filename = db.Column(db.String, unique=True)
     comment = db.Column(db.String)
-    PersonIdFK = db.Column(db.Integer, ForeignKey('person.id'))
+    PersonIdFK = db.Column(db.Integer, ForeignKey('person.id'), default=0)
 
     def __repr__(self):
         return "[Id: {}, filename: {}, comment: {}, personIdFK: {}]".\
