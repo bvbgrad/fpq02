@@ -35,7 +35,13 @@
 
     <div id="footer">
         {% block footer %}
+        <footer class="footer">
+            <hr>
             &copy; Copyright 2021 by <a href="http://6LSolutions.com/">6L Solutions</a>.
+            <div class="container">
+                <p id="footerStatus" class="text-muted">base.js will replace this text</p>
+            </div>
+        </footer>
         {% endblock %}
     </div>
 
@@ -45,6 +51,10 @@
 
         <!-- <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% endblock %}
+
+    {% block javascripts %}
+        <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     {% endblock %}
 </body>
 

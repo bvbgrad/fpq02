@@ -10,9 +10,9 @@ function base_js(){
 	var utcDate = new Date().toString()
 	console.log(utcDate + " base.js was loaded successfully ");
 
-	var footer = document.querySelector('footer');
-	footer.setAttribute('class', 'text-muted');
-    footer.textContent = 'As of ' + utcDate;
+	var footerStatus = document.querySelector('#footerStatus');
+	footerStatus.setAttribute('class', 'text-muted');
+    footerStatus.textContent = utcDate;
 
 };
 
