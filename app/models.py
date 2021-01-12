@@ -105,6 +105,7 @@ class Photo(db.Model):
     __tablename__ = 'photo'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    folder = db.Column(db.String, default="app\static\images")
     filename = db.Column(db.String, unique=True)
     comment = db.Column(db.String)
     PersonIdFK = db.Column(db.Integer, ForeignKey('person.id'))
