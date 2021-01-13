@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    <h1>{% block title %}Summary{% endblock %}</h1>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/tag_photo.css') }}">
+{% endblock %}
+
+{% block content %}
+<h3>Your score on this quiz is {{ percent_correct }}%</h3>
+<h4>{{ correct_answers }} correct answers
+<br>{{ wrong_answers }} wrong answers
+</h4>
+
+<a href="{{ url_for('main.quiz_prep') }}"
+   class="btn btn-info" style="float: right" role="button">New Quiz</a>
+
+    <div class="slideshow-container">
+
+
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    {% if photo_list %}
+        {% for photo in photo_list %}
+            <div class="mySlides">
+                <div class="numbertext">{{ photo[0] }} / {{ photo[1] }}</div>
+                <img src="{{ url_for('static', filename='images/' + photo[2]) }}"
+                     style="width:20% height:20%">
+                <div>{{ photo[4] }}</div>
+                <div>{{ photo[3] }}</div>
+            </div>
+        {% endfor %}
+
+        <div style="text-align:center">
+            {% for photo in photo_list %}
+                 <span class="dot" onclick="currentSlide({{ photo[0] }})"></span>
+            {% endfor %}
+        </div>
+
+    {% endif %}
+    </div>
+
+<div style="text-align:center">
+    To navigate through the photos -
+    <br>please click on the angle brackets above the photo or the dots below the photo,
+    <br>or press the right & left arrow keys on the keyboard
+</div>
+
+{% endblock %}
+
+{% block script %}
+var slideIndex = 1;
+showSlides(slideIndex);
+
+document.onkeydown = function(event) {
+    switch (event.keyCode) {
+       case 37:
+            plusSlides(-1)
+          break;
+       case 39:
+            plusSlides(1)
+          break;
+    }
+};
+
+function plusSlides(n) {
+    showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+
+}
+{% endblock %}

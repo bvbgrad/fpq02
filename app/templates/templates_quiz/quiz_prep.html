@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    <h1>{% block title %}Prepare quiz{% endblock %}</h1>
+    <h2>Input number of quiz questions and choose which generation you desire to review.</h2>
+{% endblock %}
+
+{% block content %}
+    <h5>This page provides a summary of the data demographics and quiz related information.</h5>
+    {% if zipped_gen %}
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Generation</th>
+                <th>Total number names</th>
+                <th>Possible quiz questions</th>
+              </tr>
+            </thead>
+            <form method="post">
+                <tbody>
+                    {% for generation in zipped_gen %}
+                        <tr style="height: 10px">
+                              <td>
+                               <div class="radio">
+                                <label><input type="radio" name="optradio" value="{{ generation[0] }}">
+                                {{  generation[0] }}</label>
+                                </div>
+                              </td>
+                            <td>{{ generation[1] }}</td>
+                            <td>{{ generation[2] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <label for="num_quiz_questions">
+                    Enter number of questions for the quiz:</label>
+                <input type="text" id=num_quiz_questions name="num_questions" value="5">
+              <button type="submit" class="btn btn-lg btn-primary" style="float: right;">Start Quiz</button>
+            </form>
+          </table>
+    {% endif %}
+{% endblock %}

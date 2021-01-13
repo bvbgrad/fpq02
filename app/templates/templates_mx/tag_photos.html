@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=.5">
+    {% block styles %}
+        {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/tag_photo.css') }}">
+    {% endblock %}
+    {% block title %}
+        <h1>Tag Photos</h1>
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <h2 id="tag_me">Select a person for each photo</h2>
+
+    <div class="slideshow-container">
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+        {% if photo_list %}
+            {% for photo in photo_list %}
+                <div class="mySlides fade">
+                    <div class="numbertext">{{ photo[0] }} / {{ photo[1] }}</div>
+                    <img src="{{ url_for('static', filename='images/' + photo[2]) }}"
+                         style="max-width:300px"
+                         alt={{photo[2]}}>
+                    <div>Person:  {{ photo[4] }}</div>
+                    <div>Caption: {{ photo[3] }}</div>
+                </div>
+
+            {% endfor %}
+
+            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+            <br>
+
+            <div style="text-align:center">
+                {% for photo in photo_list %}
+                     <span class="dot" onclick="currentSlide({{ photo[0] }})"></span>
+                {% endfor %}
+            </div>
+
+            <div style="text-align:center">
+                To navigate through the photos -
+                <br>please click on the angle brackets above the photo or the dots below the photo,
+                <br>or press the right & left arrow keys on the keyboard
+            </div>
+    </div>
+
+    <form action="mx/update" method="post">
+        <input type="hidden" name="selected_photo" id="selected_photo">
+        <label>1) First, please select the name of who is the main person in the picture above</label>
+        <br>
+        <select name="selected_person" size="3">
+            {% for person in persons %}
+                {% if person['gender'] != 'N' %}
+                    {% set list_person = person['surname'], person['given_names'],
+                        person['gender'], person['year_born'] %}
+                    <option value={{ person.id }}>{{ list_person }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <br><label>Then, 2) Please enter a brief comment or caption describing the context of this picture</label>
+        <input type="text" name="comment">
+        <br><label>Finally, 3) press the button below to tag the photo with selected name</label>
+        <br><input type="submit" 
+            value="Update photo tag">
+    </form>
+
+    {% else %}
+        No pictures to tag
+    {% endif %}
+
+
+{% endblock %}
+
+{% block script %}
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+    showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+    showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    var dots = document.getElementsByClassName("dot");
+    if (n > slides.length) {slideIndex = 1}    
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";  
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex-1].style.display = "block";  
+    dots[slideIndex-1].className += " active";
+    }
+
+{% endblock %}

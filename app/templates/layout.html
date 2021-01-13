@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/nav.html' import render_nav_item %}
+
+
+{% block title %}
+    {% if title %}
+    <title>{{ title }} - Family Photo Quiz</title>
+    {% else %}
+    <title>{{'Family Photo Quiz'}}</title>
+    {% endif %}
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-sm navbar-light">
+    <a class="navbar-brand bg-primary" href="{{ url_for('main.quiz_prep') }}">-- Family Photo Quiz --</a>
+
+    <!-- Toggler/collapsibe Button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse bg-light" id="collapsibleNavbar">
+        <ul class="nav nav-pills nav-justified">
+            <li class='nav-item'>
+                <a href="{{ url_for('main.quiz_prep') }}">Quiz</a></li>
+            <li class='nav-item' disabled>
+                <a class="nav-link" href="#" tabindex="-1 aria-disabled="true">
+                Summary</a></li>
+            <li class='nav-item' disabled>
+                <a class="nav-link" href="#" tabindex="-1 aria-disabled="true">
+                Help</a></li>
+            {% if current_user.is_anonymous %}
+                <li class='nav-item'>
+                    <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        Edit</a>
+            {% else %}
+                <li class='nav-item'>
+                    <a href="{{ url_for('auth.logout') }}">{{ 'Logout' }}</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    {{ current_user.username }}</a>
+            {% endif %}
+                <div class="dropdown-menu">
+                    {% if current_user.is_anonymous %}
+                        <a class="dropdown-item" 
+                            href="#">
+                            Guest score summary</a>
+                        <a class="dropdown-item" 
+                            href="#">
+                            Clear guest scores</a>
+                        <a class="dropdown-item" 
+                            href="{{ url_for('main.mx_actions') }}">
+                            Quiz Maintenance</a>
+                    {% else %}
+                        <a class="dropdown-item" 
+                            href="{{ url_for('main.mx_actions') }}">
+                            Update Photo data</a>
+                        <a class="dropdown-item" 
+                            href="{{ url_for('main.user', username=current_user.username) }}">
+                            'Profile'</a>
+                        <a class="dropdown-item" 
+                            href="{{ url_for('main.explore') }}">
+                            'Explore'</a>
+                        <a class="dropdown-item" 
+                            href="{{ url_for('auth.logout') }}">
+                            'Logout'</a>
+                    {% endif %}
+                </div>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {# application content needs to be provided in the app_content block #}
+    {% block app_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+</script>
+{% endblock %}

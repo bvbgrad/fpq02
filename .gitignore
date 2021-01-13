@@ -7,6 +7,8 @@ images/
 *.sqlite
 
 *.pyc
+*.json
+*.csv
 __pycache__/
 
 instance/

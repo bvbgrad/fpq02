@@ -4,8 +4,12 @@ from time import time
 from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
 import jwt
+
 from app import db, login
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 USER_ID = 'user.id'
 
@@ -19,11 +23,12 @@ followers = db.Table(
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    role = db.Column(db.String(10), default='User')
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     email = db.Column(db.String(120), index=True, unique=True)
+    about_me = db.Column(db.String(140))
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
-    about_me = db.Column(db.String(140))
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
@@ -93,3 +98,34 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+class Photo(db.Model):
+
+    __tablename__ = 'photo'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    folder = db.Column(db.String, default="app\static\images")
+    filename = db.Column(db.String, unique=True)
+    comment = db.Column(db.String)
+    PersonIdFK = db.Column(db.Integer, ForeignKey('person.id'), default=0)
+
+    def __repr__(self):
+        return "[Id: {}, filename: {}, comment: {}, personIdFK: {}]".\
+            format(self.id, self.filename, self.comment, self.PersonIdFK)
+
+
+class Person(db.Model):
+
+    __tablename__ = 'person'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    surname = db.Column(db.String)
+    given_names = db.Column(db.String)
+    gender = db.Column(db.String)
+    year_born = db.Column(db.Integer)
+    photos = relationship("Photo")
+
+    def __repr__(self):
+        return "[Id: {}, surname: {}, given names: {}, gender: {}, year born: {}]".\
+            format(self.id, self.surname, self.given_names, self.gender, self.year_born)

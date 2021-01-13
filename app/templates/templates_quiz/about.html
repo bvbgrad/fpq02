@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    <h1>{% block title %}About{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <h3>Family Photo Quiz Version 1.0</h3>
+    {% if name %}
+        This is all about {{ name }} <br/>
+    {% endif %}
+    {% if users %}
+        Users: {{ users }}
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>User Name</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                  <tr>
+                    <td>{{ user['id'] }}</td>
+                    <td>{{ user['username'] }}</td>
+                  </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+    {% endif %}
+{% endblock %}
+
