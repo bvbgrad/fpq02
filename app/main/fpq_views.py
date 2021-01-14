@@ -11,7 +11,7 @@ from app.models import Photo, Person
 from .personDAO import get_all_persons_count, get_person_gen_data, get_bad_answers
 from .personDAO import add_persons
 from .photoDAO import get_all_tagged_photos, get_all_tagged_photos_count, get_photo_quiz_data
-from .photoDAO import get_all_photos_count, add_photos
+from .photoDAO import get_all_photos, get_all_photos_count, add_photos, delete_photos
 
 import app.utils6L.utils6L as utils
 import logging
@@ -438,7 +438,8 @@ def load_persons_csv():
 @login_required
 def load_photos_csv():
     logger.info("load photos_csv data")
-
+    # TODO non-functional, needs to be updated
+    
     photo_file_path = Path("data/photo20210112x0345.csv")
     logger.info(f"Loading photo data from '{photo_file_path.name}'")
 
@@ -457,5 +458,58 @@ def load_photos_csv():
         photo_list.pop(0)
         add_photos(photo_list)
     logger.info(f"There are {get_all_photos_count()} photos after the add action")
+
+    return redirect(url_for('main.mx_actions'))
+
+
+@utils.log_wrap
+@bp.route('/sync_db_with_images', methods=['get'])
+@login_required
+def sync_db_with_images():
+    logger.info("sync_db_with_images()")
+
+    photo_list = get_all_photos()
+    logger.info(f"There are {len(photo_list)} photos before the sync action")
+
+    # TODO make image location an configuration or environment variable
+    images_folder = 'app/static/images'
+    images_path = Path(images_folder)
+    photo_files = os.listdir(images_path)
+
+    # identify the rows in the database that do not have a photo in the images folder
+    flagged_for_action = []
+    for i, photo in enumerate(photo_list, 1):
+        print(f"{i:2d}.  {photo.id}:{photo.filename}")
+        if photo.filename in photo_files:
+            logger.info(f"photo found: {photo.filename}")
+        else:
+            flagged_for_action.append(photo)
+
+    # delete the rows in the database that do not have a photo in the images folder
+    delete_photos(flagged_for_action)
+
+    # Create new photo list of the photos that were found
+    # And whose information is still in the database
+    photos_found = set()
+    photo_list = get_all_photos()
+    for photo in photo_list:
+        photos_found.add(photo.filename)
+    logger.info(f"There are {len(photos_found)} photos left in the database after the delete photos action")
+    print(f"photos found set: {photos_found}")
+
+    flagged_for_action = []
+    for i, photo_file in enumerate(photo_files, 1):
+        print(f"{i:2d}. {photo_file}")
+        if photo_file not in photos_found:
+            logger.info(f"add photo to database: {photo_file}")
+            flagged_for_action.append((photo_file, images_folder,))
+
+    print(f"add photos: {flagged_for_action}")
+
+    # add the new photos to the database
+    add_photos(flagged_for_action)
+
+    photo_list = get_all_photos()
+    logger.info(f"There are {len(photo_list)} photos after the sync action")
 
     return redirect(url_for('main.mx_actions'))
