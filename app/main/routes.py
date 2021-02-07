@@ -26,6 +26,12 @@ def before_request():
 @bp.route('/', methods=['GET'])
 @bp.route('/index', methods=['GET'])
 def index():
+    return render_template('welcome.html', title="Welcome to FPQ")
+
+
+@utils.log_wrap
+@bp.route('/host', methods=['GET'])
+def host():
     try:
         hostname = os.environ['HOSTNAME']
     except Exception:
