@@ -349,9 +349,19 @@ def update_photo_tag():
     logger.info(__name__ + ".update_photo_tag()")
 
     tagged_person = request.form.get('selected_person')
-    tagged_person_id = int(tagged_person)
+    try:
+        tagged_person_id = int(tagged_person)
+    except ValueError as exception:
+        logger.exception(f"{__name__}error = '{exception}'")
+        tagged_person_id = 0
+
     tagged_photo = request.form.get('selected_photo')
-    tagged_photo_id = int(tagged_photo)
+    try:
+        tagged_photo_id = int(tagged_photo)
+    except ValueError as exception:
+        logger.exception(f"{__name__} error = '{exception}'")
+        tagged_photo_id = 0
+
     tagged_comment = request.form.get('comment')
 
     if tagged_person and tagged_photo:
@@ -365,9 +375,9 @@ def update_photo_tag():
 
         logger.info(
             __name__ + " photo #{} has been updated: {}".format(tagged_photo_id, photo))
-        return redirect("/mx")
+        return redirect(url_for('main.tag_photos', photo_number=0))
         # return redirect("/mx/" + str(tagged_photo_id))
-    return redirect("/mx")
+    return redirect(url_for('main.tag_photos', photo_number=0))
 
 
 def check_logger():

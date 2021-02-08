@@ -16,10 +16,13 @@
         {% for photo in photo_list %}
             <div class="mySlides">
                 <div class="numbertext">{{ photo[0] }} / {{ photo[1] }}</div>
+                <div>Filename: {{ photo[2] }}</div>
+                <div>Caption:  {{ photo[3] }}</div>
+                <div>PersonFK: {{ photo[4] }}</div>
                 <img src="{{ url_for('static', filename='images/' + photo[2]) }}"
-                     style="width:300px">
-                <div>{{ photo[4] }}</div>
-                <div>{{ photo[3] }}</div>
+                    alt="{{ photo[2] }}"
+                    style="width:300px">
+                <hr/>
             </div>
         {% endfor %}
 

@@ -8,16 +8,25 @@
     <a href="{{ url_for('main.load_persons_csv') }}">{{ 'Load Person data (CSV)' }}</a>
     <br>
     <a href="{{ url_for('main.load_photos_csv') }}">{{ 'Load Photo data (CSV)' }}</a>
-    <p></p>
 </div>
+
 <div>
+    <p></p>
     <p class="bg-warning text-white">
         Moderately dangerous functions - Be sure you know what your are doing.</p>
-    <a href="{{ url_for('main.tag_photos', photo_number=0) }}">
-        Tag the photos with a person</a>
-    <br>
-    <a href="{{ url_for('main.sync_db_with_images') }}">
-        Synchronize the database with the photos in the image folder</a>
-    <br>
+        <a href="{{ url_for('main.tag_photos', photo_number=0) }}">
+            Tag the photos with a person</a>
+            <br>
+            <a href="{{ url_for('main.sync_db_with_images') }}">
+                Synchronize the database with the photos in the image folder</a>
+            <br>
 </div>
+
+<div>
+    <p></p>
+    <p class="bg-info">
+        Safe functions - read only operations.</p>
+    <a href="{{ url_for('main.gallery') }}">
+        Display all the photos</a>
+
 {% endblock %}

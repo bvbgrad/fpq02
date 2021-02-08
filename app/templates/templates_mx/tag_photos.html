@@ -85,7 +85,7 @@
                         alt="{{photo[2]}}"/>
                     <div class="Caption">Caption: {{ photo[3] }}</div>
                 </div>
-                {% endfor %}
+            {% endfor %}
             <a class="prevBtn">❮</a>
             <a class="nextBtn">❯</a>
         </div>
@@ -103,7 +103,7 @@
             or by pressing the right & left arrow keys on the keyboard</p>
         </div>
 
-        <form action="mx/update" method="post">
+        <form action="{{ url_for('main.update_photo_tag') }}" method="post">
             <input type="hidden" name="selected_photo" id="selected_photo">
             <label>Step 2) Select the name of who is the main person in the picture above</label>
             <br>
