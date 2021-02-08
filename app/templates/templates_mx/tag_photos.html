@@ -1,168 +1,117 @@
-{% extends 'layout.html' %}
+{% extends 'base.html' %}
 
-{% block head %}
-    <meta name="viewport" content="width=device-width, initial-scale=.5">
-    {% block styles %}
-        {{ super() }}
-        <style>
-            * {
-               box-sizing: border-box;
-            }
-            .Slide {
-               display: none;
-            }
-            img {
-               vertical-align: middle;
-               width: 100%;
-               height: 400px;
-            }
-            .slideContainer {
-               max-width: 600px;
-               position: relative;
-               margin: auto;
-            }
-            .prevBtn,
-            .nextBtn {
-               position: absolute;
-               top: 50%;
-               width: auto;
-               padding: 10px;
-               background-color: rgb(255, 255, 75);
-               color: rgb(50, 0, 116);
-               font-weight: bolder;
-               font-size: 18px;
-            }
-            .nextBtn {
-               right: 0;
-            }
-            .Caption {
-               color: #fbff09;
-               font-weight: bold;
-               font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-               font-size: 25px;
-               padding: 8px 12px;
-               position: absolute;
-               bottom: 8px;
-               width: 100%;
-               text-align: center;
-            }
-            .Navdot {
-               cursor: pointer;
-               height: 15px;
-               width: 15px;
-               margin: 0 2px;
-               background-color: rgb(54, 5, 117);
-               border-radius: 50%;
-               display: inline-block;
-               transition: background-color 0.6s ease;
-            }
-            .selected,
-            .Navdot:hover {
-               background-color: #d9ff00;
-            }
-            @media only screen and (max-width: 450px) {
-               .prevBtn,
-               .nextBtn,
-               .Caption {
-                  font-size: 16px;
-               }
-            }
-            </style>
-    {% endblock %}
-    {% block title %}
-        <h1>Tag Photos</h1>
-    {% endblock %}
+{% block header %}
+    <h1>{% block title %}Tag Photos{% endblock %}</h1>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=.5">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/tag_photo.css') }}">
 {% endblock %}
 
 {% block content %}
     <h2 id="tag_me">Select a person for each photo</h2>
-    
-    {% if photo_list %}
-        <div class="slideContainer">
+
+    <form action="mx/update" method="post">
+        <input type="hidden" name="selected_photo" id="selected_photo">
+        <label>Please select the name of who is the main person in the picture below</label>
+        <select name="selected_person" size="3">
+            {% for person in persons %}
+                {% if person['gender'] != 'N' %}
+                    {% set list_person = person['surname'], person['given_names'],
+                        person['gender'], person['year_born'] %}
+                    <option value={{ person.id }}>{{ list_person }}</option>
+            <!-- todo person.id works correctly but generates 'attribute is not allowed here' error  -->
+                {% endif %}
+            {% endfor %}
+        </select>
+        <br><br><label>Please enter a comment giving the context of this picture</label>
+        <input type="text" name="comment"><br>
+        <br><br>
+        <input type="submit" value="Tag photo with selected name">
+    </form>
+
+    <div class="slideshow-container">
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+        {% if photo_list %}
             {% for photo in photo_list %}
-                <div class="Slide">
-                    <img src="{{ url_for('static', filename='images/' + photo[2]) }}"
-                        alt="{{photo[2]}}"/>
-                    <div class="Caption">Caption: {{ photo[3] }}</div>
+                <div class="mySlides">
+                    <img id="myImg"
+                    src="{{ url_for('static', filename='images/' + photo[2]) }}"
+                    alt="{{photo[2]}}"
+                    style="width:300px">
+                    <div class="numbertext">{{ photo[0] }} / {{ photo[1] }}</div>
+                    <div>Filename: {{ photo[2] }}</div>
+                    <div>Caption:  {{ photo[3] }}</div>
+                    <div>PersonFK: {{ photo[4] }}</div>
+                    <hr/>
                 </div>
+
             {% endfor %}
-            <a class="prevBtn">❮</a>
-            <a class="nextBtn">❯</a>
-        </div>
 
-        <br />
-        <div style="text-align:center">
-            {% for photo in photo_list %}
-                    <span class="Navdot" onclick="currentSlide(2)"></span>
-            {% endfor %}
-        </div>
-
-        <div style="text-align:left">
-            <p>Step 1) Navigate through the photos
-            by clicking on the angle brackets above the photo or the dots below the photo,
-            or by pressing the right & left arrow keys on the keyboard</p>
-        </div>
-
-        <form action="{{ url_for('main.update_photo_tag') }}" method="post">
-            <input type="hidden" name="selected_photo" id="selected_photo">
-            <label>Step 2) Select the name of who is the main person in the picture above</label>
             <br>
-            <select name="selected_person" size="3">
-                {% for person in persons %}
-                    {% if person['gender'] != 'N' %}
-                        {% set list_person = person['surname'], person['given_names'],
-                            person['gender'], person['year_born'] %}
-                        <option value={{ person.id }}>{{ list_person }}</option>
-                    {% endif %}
+
+            <div style="text-align:center">
+                {% for photo in photo_list %}
+                     <span class="dot" onclick="currentSlide({{ photo[0] }})"></span>
                 {% endfor %}
-            </select>
-            <br><label>Step 3) (Optional) Enter a brief comment or caption describing the context of this picture</label>
-            <input type="text" name="comment">
-            <br><label>Step 4) Press the 'Update photo tag' button below to tag the photo with the selected name</label>
-            <br><input type="submit" 
-                value="Update photo tag">
-        </form>
+            </div>
 
-    {% else %}
-        No pictures to tag
-    {% endif %}
+        {% endif %}
 
+    </div>
+
+    <div style="text-align:center">
+        To navigate through the photos -
+        <br>please click on the angle brackets above the photo or the dots below the photo,
+        <br>or press the right & left arrow keys on the keyboard
+    </div>
 
 {% endblock %}
 
 {% block script %}
-<script>
-    document.querySelector(".prevBtn").addEventListener("click", () => {
-        changeSlides(-1);
-    });
-    document.querySelector(".nextBtn").addEventListener("click", () => {
-        changeSlides(1);
-    });
-    var slideIndex = 1;
-    showSlides(slideIndex);
-    function changeSlides(n) {
-        showSlides((slideIndex += n));
-    }
-    function currentSlide(n) {
-        showSlides((slideIndex = n));
-    }
-    function showSlides(n) {
-        var i;
-        var slides = document.getElementsByClassName("Slide");
-        var dots = document.getElementsByClassName("Navdot");
-        if (n > slides.length) {
-        slideIndex = 1;
-        }
-        if (n < 1) {
-        slideIndex = slides.length;
-        }
-        Array.from(slides).forEach(item => (item.style.display = "none"));
-        Array.from(dots).forEach(
-        item => (item.className = item.className.replace(" selected", ""))
-        );
-        slides[slideIndex - 1].style.display = "block";
-        dots[slideIndex - 1].className += " selected";
-    }
- </script>
+var slideIndex = 1;
+if ({{ photo_number }} > 1) {
+    slideIndex = {{ photo_number }};
+}
+showSlides(slideIndex);
 
-{% endblock %}
+document.onkeydown = function(event) {
+    switch (event.keyCode) {
+       case 37:
+            plusSlides(-1)
+          break;
+       case 39:
+            plusSlides(1)
+          break;
+    }
+};
+
+function plusSlides(n) {
+    showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+
+  var selected_photo = document.getElementById("selected_photo");
+  selected_photo.value = slideIndex
+  console.log("showSlides: " + slideIndex)
+}{% endblock %}
