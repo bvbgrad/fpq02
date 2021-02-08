@@ -318,6 +318,7 @@ def tag_photos(photo_number=0):
     photo_list = []
     i = 0
     for i, photo in enumerate(photos):
+    # TODO remove 'if i > 5: break' line after fixing photo tagging algorithm
         if i > 5: break
         if photo.PersonIdFK != 0:
             # person = persons[photo.PersonIdFK]
@@ -327,7 +328,7 @@ def tag_photos(photo_number=0):
                 photo_person = "{}, {} ({}) ({})" \
                     .format(person.surname, person.given_names,
                             person.gender, person.year_born)
-            except AttributeError as e:
+            except AttributeError:
                 logger.exception(f"problem with person object for photo id = {photo.id}")
         else:
             photo_person = None
