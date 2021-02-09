@@ -14,12 +14,15 @@
     <p></p>
     <p class="bg-warning text-white">
         Moderately dangerous functions - Be sure you know what your are doing.</p>
+        <a href="{{ url_for('main.tag_one', photo_number=0) }}">
+            Tag the photos with a person one at a time</a>
+            <br>
         <a href="{{ url_for('main.tag_photos', photo_number=0) }}">
             Tag the photos with a person</a>
             <br>
-            <a href="{{ url_for('main.sync_db_with_images') }}">
-                Synchronize the database with the photos in the image folder</a>
-            <br>
+        <a href="{{ url_for('main.sync_db_with_images') }}">
+            Synchronize the database with the photos in the image folder</a>
+        <br>
 </div>
 
 <div>

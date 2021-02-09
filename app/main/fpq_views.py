@@ -295,6 +295,37 @@ def mx_actions():
     return render_template('templates_mx/mx_actions.html')
 
 
+@bp.route('/mx/tag_one/<photo_number>', methods=['post', 'get'])
+@login_required
+def tag_one(photo_number=0):
+    logger.info(__name__ + f".tag_one() Photo number = {photo_number}")
+
+    # get a list of all the photos from the database
+    all_photos = Photo.query.all()  # todo shadow outer scope photos
+    num_photos = len(all_photos)
+    logger.info(__name__ + " {} available photos".format(num_photos))
+
+    try:
+        photo_id = int(photo_number)
+    except ValueError:
+        photo_id = 0
+    selected_photo = all_photos[photo_id]
+    path = Path(selected_photo.filename)
+
+    # get a list of all persons from the database ordered by surname, given names
+    persons = Person.query.order_by(Person.surname, Person.given_names).all()
+    logger.info(__name__ + " {} persons".format(len(persons)))
+
+    photo_persons = []
+    for i in range(1, 5):
+        photo_persons.append(persons[i])
+
+    photo = (photo_id, selected_photo.filename, selected_photo.comment, selected_photo.PersonIdFK)
+    # return render_template('templates_mx/tag_photo.html')
+    return render_template('templates_mx/tag_photo.html',
+                           photo= photo, persons=photo_persons)
+
+
 @bp.route('/mx/<photo_number>', methods=['post', 'get'])
 @login_required
 def tag_photos(photo_number=0):

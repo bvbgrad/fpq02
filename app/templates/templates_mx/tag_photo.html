@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block header %}
+    <h1>{% block title %}Tag Photo{% endblock %}</h1>
+    {% endblock %}
+    
+    {% block content %}
+    <h4 id="tag_me">Confirm the correct name is selected for the person in the photo</h4>
+    
+    {% if photo %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="thumbnail">
+                <img id="myImg"
+                src="{{ url_for('static', filename='images/' + photo[1]) }}"
+                alt="{{photo[1]}}"
+                style="width:300px">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div>Photo #:  {{ photo[0] }}</div>
+            <div>Filename: {{ photo[1] }}</div>
+            <div>Caption:  {{ photo[2] }}</div>
+            <div>PersonID: {{ photo[2] }}</div>
+            <div class="container">
+                <form method="post">
+                    <input type="hidden" name="photo_id" value="{{ photo[0] }}">
+                    {% for person in persons %}
+                    <div class="radio">
+                        <label><input type="radio" name="optradio" value="{{ person['id'] }}">
+                            {{ person['surname'] }}, {{ person['given_names'] }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-default bg-primary text-white">
+                        Confirm or Select
+                    </button>
+                </form>
+                <br/>
+                <a class="bg-primary text-white" href="{{ url_for('main.mx_actions') }}">
+                    Stop tagging photos</a>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <h4>No photo to tag</h4> 
+    {% endif %} 
+    
+
+    {% endblock %}
