@@ -11,7 +11,7 @@ from app.models import Photo, Person
 from .personDAO import get_all_persons_count, get_person_gen_data, get_bad_answers
 from .personDAO import add_persons
 from .photoDAO import get_all_tagged_photos, get_all_tagged_photos_count, get_photo_quiz_data
-from .photoDAO import get_all_photos, get_all_photos_count, add_photos, delete_photos
+from .photoDAO import get_all_photos, get_all_photos_count, add_photos, delete_photos, update_photo
 
 import app.utils6L.utils6L as utils
 import logging
@@ -325,7 +325,6 @@ def tag_one_photo():
     selected_photo = None
     # Try to find the correct selected_photo based on the photo Id
     for i, photo in enumerate(all_photos):
-        # if i == photo.id:
         if photo_id == photo.id:
             selected_photo = all_photos[i]
             logger.info(f"Found photo {selected_photo} for photo id {photo_id} in photos")
@@ -339,12 +338,8 @@ def tag_one_photo():
     persons = Person.query.order_by(Person.surname, Person.given_names).all()
     logger.info(__name__ + " {} persons".format(len(persons)))
 
-    photo_persons = []
-    for i in range(1, 5):
-        photo_persons.append(persons[i])
-
     return render_template('templates_mx/tag_photo.html',
-                           photo=selected_photo, persons=photo_persons)
+                           photo=selected_photo, persons=persons)
 
 
 @bp.route('/mx/<photo_number>', methods=['post', 'get'])
@@ -420,16 +415,15 @@ def update_photo_tag():
         logger.info(
             __name__ + " tagged person = {}, tagged photo = {}, comment = {}"
             .format(tagged_person_id, tagged_photo, tagged_comment))
-        photos = Photo.query.all()  # todo shadow outer scope photos
-        photo = Photo.query.filter_by(id=photos[tagged_photo_id - 1].id).first()  # todo index offset fudge?
+        photo = Photo.query.filter_by(id=tagged_photo_id).first()
         photo.PersonIdFK = tagged_person_id
         photo.comment = tagged_comment
+        update_photo(photo)
 
         logger.info(
             __name__ + " photo #{} has been updated: {}".format(tagged_photo_id, photo))
-        return redirect(url_for('main.tag_photos', photo_number=0))
-        # return redirect("/mx/" + str(tagged_photo_id))
-    return redirect(url_for('main.tag_photos', photo_number=0))
+        return redirect(url_for('main.mx_photo_admin'))
+    return redirect(url_for('main.mx_photo_admin'))
 
 
 def check_logger():

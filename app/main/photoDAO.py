@@ -84,12 +84,21 @@ def create_photo_filter(after, before, generation):
 
 def add_photos(photo_data_list):
     logger.info(__name__ + ".add_photos()")
-    #TODO prevent adding duplicate photos
+#TODO prevent adding duplicate photos
 
     for photo_info in photo_data_list:
         filename, folder = photo_info
         photo = Photo(filename=filename, folder=folder)
         db.session.add(photo)
+    db.session.commit()
+
+
+# To update an object simply set its attribute to a new value, 
+# add the object to the session,
+# and commit the changes.
+def update_photo(photo):
+    logger.info(__name__ + f".update_photo({photo})")
+    db.session.add(photo)
     db.session.commit()
 
 
