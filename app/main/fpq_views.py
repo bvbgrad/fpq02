@@ -295,22 +295,45 @@ def mx_actions():
     return render_template('templates_mx/mx_actions.html')
 
 
-@bp.route('/mx/tag_one/<photo_number>', methods=['post', 'get'])
+@bp.route('/mx_photos', methods=['post', 'get'])
 @login_required
-def tag_one(photo_number=0):
-    logger.info(__name__ + f".tag_one() Photo number = {photo_number}")
+def mx_photo_admin():
+    logger.info(__name__ + f".mx_photo_admin()")
 
     # get a list of all the photos from the database
     all_photos = Photo.query.all()  # todo shadow outer scope photos
     num_photos = len(all_photos)
     logger.info(__name__ + " {} available photos".format(num_photos))
 
+    return render_template('templates_mx/mx_photo_admin.html', photos=all_photos)
+
+
+@bp.route('/mx/tag_one_photo', methods=['post', 'get'])
+@login_required
+def tag_one_photo():
     try:
-        photo_id = int(photo_number)
-    except ValueError:
+        photo_id = int(request.args.get("photo"))
+    except (TypeError, ValueError):
         photo_id = 0
-    selected_photo = all_photos[photo_id]
-    path = Path(selected_photo.filename)
+    logger.info(__name__ + f".tag_one_photo() Photo Id = {photo_id}")
+
+    # get a list of all the photos from the database
+    all_photos = Photo.query.all()  # todo shadow outer scope photos
+    num_photos = len(all_photos)
+    logger.info(" {} available photos".format(num_photos))
+
+    selected_photo = None
+    # Try to find the correct selected_photo based on the photo Id
+    for i, photo in enumerate(all_photos):
+        # if i == photo.id:
+        if photo_id == photo.id:
+            selected_photo = all_photos[i]
+            logger.info(f"Found photo {selected_photo} for photo id {photo_id} in photos")
+    
+    # if photo id does not exist, default to the first photo on the list
+    if selected_photo is None:
+        logger.warn(f"Could not find photo id {photo_id} in photos")
+        selected_photo = all_photos[0]
 
     # get a list of all persons from the database ordered by surname, given names
     persons = Person.query.order_by(Person.surname, Person.given_names).all()
@@ -320,10 +343,8 @@ def tag_one(photo_number=0):
     for i in range(1, 5):
         photo_persons.append(persons[i])
 
-    photo = (photo_id, selected_photo.filename, selected_photo.comment, selected_photo.PersonIdFK)
-    # return render_template('templates_mx/tag_photo.html')
     return render_template('templates_mx/tag_photo.html',
-                           photo= photo, persons=photo_persons)
+                           photo=selected_photo, persons=photo_persons)
 
 
 @bp.route('/mx/<photo_number>', methods=['post', 'get'])

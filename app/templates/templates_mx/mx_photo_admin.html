@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block app_content %}
+    <div class="container">
+        <h3>Available Photos</h3>
+        <table class="table table-striped">
+        <caption>List of all photos with edit buttons</caption>
+        <thead>
+          <tr>
+              <th id=header_id>ID</th>
+              <th id=header_filename>Filename</th>
+              <th id=header_comment>comment</th>
+              <th id=header_personIdFK>PersonIdFK</th>
+              <th id=header_filename>Folder</th>
+              <th id=header_edit>Edit</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for photo in photos %}
+                <tr>
+                    <td>{{ photo.id }} </td>
+                    <td>{{ photo.filename }} </td>
+                    <td>{{ photo.comment }} </td>
+                    <td>{{ photo.PersonIdFK }} </td>
+                    <td>{{ photo.folder }} </td>
+                    <td><a href="{{ url_for('main.tag_one_photo') }}?photo={{ photo.id }}"
+                        class="btn btn-info" role="button">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -12,23 +12,23 @@
         <div class="col-md-4">
             <div class="thumbnail">
                 <img id="myImg"
-                src="{{ url_for('static', filename='images/' + photo[1]) }}"
+                src="{{ url_for('static', filename='images/' + photo.filename) }}"
                 alt="{{photo[1]}}"
                 style="width:300px">
             </div>
         </div>
         <div class="col-md-6">
-            <div>Photo #:  {{ photo[0] }}</div>
-            <div>Filename: {{ photo[1] }}</div>
-            <div>Caption:  {{ photo[2] }}</div>
-            <div>PersonID: {{ photo[2] }}</div>
+            <div>Photo Id: {{ photo.id }}</div>
+            <div>Filename: {{ photo.filename }}</div>
+            <div>Caption:  {{ photo.comment }}</div>
+            <div>PersonID: {{ photo.PersonIdFK }}</div>
             <div class="container">
                 <form method="post">
-                    <input type="hidden" name="photo_id" value="{{ photo[0] }}">
+                    <input type="hidden" name="photo_id" value="{{ photo.id }}">
                     {% for person in persons %}
                     <div class="radio">
                         <label><input type="radio" name="optradio" value="{{ person['id'] }}">
-                            {{ person['surname'] }}, {{ person['given_names'] }}
+                            {{ person.surname }}, {{ person.given_names }}
                         </label>
                     </div>
                     {% endfor %}
@@ -36,6 +36,9 @@
                         Confirm or Select
                     </button>
                 </form>
+                <br/>
+                <a class="bg-primary text-white" href="{{ url_for('main.mx_photo_admin') }}">
+                    Tag another photo</a>
                 <br/>
                 <a class="bg-primary text-white" href="{{ url_for('main.mx_actions') }}">
                     Stop tagging photos</a>
