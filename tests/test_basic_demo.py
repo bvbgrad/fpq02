@@ -9,5 +9,5 @@ def my_app():
 
 def test_my_basic_test(my_app):
     response = my_app.get("/")
-    assert response.data.decode("utf-8") == "<h1>Flask demo!</h1>"
     assert response.status_code == 200
+    assert response.data.decode("utf-8") == "<h1>Flask demo!</h1>"

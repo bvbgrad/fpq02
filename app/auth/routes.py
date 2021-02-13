@@ -33,7 +33,7 @@ def login():
             # logger.info(f"login.py() line 35 next page = {next_page}")
             next_page = url_for('main.index')
         return redirect(next_page)
-    return render_template('auth/login.html', title='Sign In', form=form)
+    return render_template('auth/login.html', title='Login Page', form=form)
 
 
 @bp.route('/logout')
