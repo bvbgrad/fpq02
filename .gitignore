@@ -16,9 +16,7 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
-tests/*.html
-tests/*.png
-tests/*.xml
+robot_tests/reports/
 
 dist/
 build/

@@ -16,9 +16,10 @@ Resource          resource.robot
 *** Test Cases ***               USER NAME        PASSWORD
 Invalid Username                 invalid          ${VALID PASSWORD}
 Invalid Password                 ${VALID USER}    invalid
-Invalid Username And Password    invalid          whatever
+Invalid Username And Password    invalid          whatEMPTYever
+# TODO Username and Password are required fields. ${EMPTY} is not allowed
 # Empty Username                   ${EMPTY}         ${VALID PASSWORD}
-# Empty Password                   ${VALID USER}    ${EMPTY}
+# Empty Password                   ${VALID USER}    ${}
 # Empty Username And Password      ${EMPTY}         ${EMPTY}
 
 *** Keywords ***
@@ -30,6 +31,7 @@ Login With Invalid Credentials Should Fail
     Login Should Have Failed
 
 Login Should Have Failed
+# TODO ${ERROR URL} will be a future feature?
     # Location Should Be    ${ERROR URL}
     # Title Should Be    Error Page
     Page Should Contain     Invalid
