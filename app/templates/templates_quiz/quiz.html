@@ -1,44 +1,66 @@
 {% extends "layout.html" %}
 
 {% block header %}
-    <h1>{% block title %}Quiz{% endblock %}</h1>
-    <h3></h3><a href="{{ url_for('display_scores') }}">
-        Exit the quiz.   Skip the rest of the questions.</a>
-{% endblock %}
-
+    <h1>{% block title %} <title>Quiz</title> {% endblock %}</h1>
+    {% endblock %}
+    
 {% block content %}
-<div class="container">
-    <h2>Who is this person?</h2>
+    <div class="container">
+        <h2>Photo # {{question_id + 1}}. Who is this person?</h2>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="thumbnail">
-                <a href="{{ url_for('static', filename='images/' + photo[0]) }}" target="_blank">
-                    <img src="{{ url_for('static', filename='images/' + photo[0]) }}"
-                         alt={{ photo[1] }} style="width:100%">
-                    <div class="caption">
-                        <p>{{ photo[1] }}</p>
-                    </div>
-                </a>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <a href="{{ url_for('static', filename='images/' + photo[0]) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='images/' + photo[0]) }}"
+                            alt={{ photo[1] }} style="width:100%">
+                        <div class="caption">
+                            <p>{{ photo[1] }}</p>
+                        </div>
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            Select the correct person shown in the photo.
-            Then click on 'Next photo' to submit your answer.
-            <div class="container">
-              <form method="post">
-                  <input type="hidden" name="question_id" value="{{ question_id }}">
-                  {% for answer in answer_list %}
-                    <div class="radio">
-                        <label><input type="radio" name="optradio" value="{{ answer[0] }}">
-                        {{ answer[1]['surname'] }}, {{ answer[1]['given_names'] }}</label>
-                    </div>
-                  {% endfor %}
-                  <button type="submit" class="btn btn-default">Submit Answer</button>
-              </form>
+            <div class="col-md-6">
+                Select the correct person shown in the photo.
+                Then click on 'Next photo' to submit your answer.
+                <div class="container">
+                <form method="post">
+                    <input type="hidden" name="question_id" value="{{ question_id }}">
+                    {% for answer in answer_list %}
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optradio" id="optradio" value="{{ answer[0] }}">
+                                    {{ answer[1]['surname'] }}, {{ answer[1]['given_names'] }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-lg btn-primary">Next person</button>
+                </form>
+                <br/><button onclick=check_answer() id="check_btn">Check Answer</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <h4 style="text-align:center"><a href="{{ url_for('main.display_score') }}">
+        Exit the quiz</a></h4>
+{% endblock %}
 
+{% block javascripts %}
+{{ super() }}
+<script>
+    const btn = document.querySelector('#check_btn');
+    function check_answer () {
+        const rbs = document.querySelectorAll('input[name="optradio"]');
+        let selectedValue = "TBD";
+        for (const rb of rbs) {
+            if (rb.checked) {
+                selectedValue = rb.value;
+                break;
+            }
+        }
+        let msg = "Your answer is " + selectedValue
+        alert(msg);
+        // alert("Your answer is {}".format(selectedValue));
+    };
+</script>
 {% endblock %}

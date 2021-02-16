@@ -129,49 +129,35 @@ def quiz():
         print("Quiz photo: {} answer was '{}'".format(quiz_photos[question_id], answer))
         print("Answers so far: {}".format(answers))
 
-        person_id = quiz_photos[question_id].PersonIdFK
-        photo_person = Person.query.filter(Person.id == person_id).first()
-        photo_name = "'{}, {}'".format(photo_person.surname, photo_person.given_names)
-
-        if answer == "correct":
-            flash("Success: {} was the correct answer".format(photo_name))
-        else:
-            flash("Error: Your answer should have been {}".format(photo_name))
-
-        return render_template(
-            'templates_quiz/response.html',
-            question_id=person_id, photo=photo_person, photo_name=photo_name, answer=answer)
-
     num_quiz_photos = len(quiz_photos)
 
     while 'test' in answers:
+    # random_photo_id identifies which photo is being quized
         random_photo_id = random.randint(0, num_quiz_photos - 1)
         if answers[random_photo_id] != 'test':
-            print("test candidate already tested: ", random_photo_id, answers)
+            logger.info(f"test candidate already tested: {random_photo_id} current answers {answers}")
             continue
         else:
-            print("untested candidate: ", random_photo_id, answers)
+            logger.info(f"untested candidate: {random_photo_id} current answers {answers}")
 
-        print("Photo {} selected".format(quiz_photos[random_photo_id]))
+        logger.info("Photo {} selected".format(quiz_photos[random_photo_id]))
         photo_path = Path(quiz_photos[random_photo_id].filename)
         photo = (photo_path.name, quiz_photos[random_photo_id].comment)
 
         person_id = quiz_photos[random_photo_id].PersonIdFK
         photo_person = Person.query.filter(Person.id == person_id).first()
 
-        print("photo '{}' photo_person = {}".format(random_photo_id, photo_person))
+        logger.info("photo '{}' photo_person = {}".format(random_photo_id, photo_person))
 
         answer_list_choices = get_bad_answers(photo_person.gender, photo_person.year_born)
         # print("view().answer_list: ", answer_list_choices)
         correct_found = False
         shuffled_answer_list = []
         while not correct_found:
-            print("view().shuffle answers")
             shuffled_answer_list = random.sample(answer_list_choices, 5)
             for random_person in shuffled_answer_list:
                 if random_person == photo_person:
                     correct_found = True
-        print("view().shuffled_answer_list: ", shuffled_answer_list)
 
         answer_list = []
         for person in shuffled_answer_list:
@@ -180,20 +166,19 @@ def quiz():
             else:
                 answer_list.append(('wrong', person))
 
-        print("Answer list append: {}".format(answer_list))
+        logger.info(f"Answer list append: {answer_list}")
 
         return render_template(
             'templates_quiz/quiz.html',
             question_id=random_photo_id, photo=photo, answer_list=answer_list)
 
-    # return render_template('templates_quiz/scores.html')
-    return redirect(url_for('main.display_scores'))
+    return redirect(url_for('main.display_score'))
 
 
 @bp.route('/scores', methods=['POST', 'GET'])
-def display_scores():
+def display_score():
     global photo_list
-    logger.info(__name__ + ".display_scores()")
+    logger.info(__name__ + ".display_score()")
     correct_answers = 0
     wrong_answers = 0
     for answer in answers:
@@ -228,7 +213,7 @@ def display_scores():
             photo_person = None
         path = Path(photo.filename)
         i += 1
-        photo_list.append((i, num_photos, path.name, photo.comment, photo_person))
+        photo_list.append((i, num_photos, path.name, photo.comment, photo_person, answers[i - 1]))
 
     print("Scores -- Photo List: ", photo_list)
 
@@ -236,7 +221,7 @@ def display_scores():
     # photo_person = Person.query.filter(Person.id == person_id).first()
     # for quiz_person in quiz_photos:
 
-    return render_template('templates_quiz/scores.html',
+    return render_template('templates_quiz/display_score.html',
                            percent_correct=percent_correct,
                            wrong_answers=wrong_answers,
                            correct_answers=correct_answers,

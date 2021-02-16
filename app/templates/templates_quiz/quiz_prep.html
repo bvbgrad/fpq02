@@ -1,19 +1,25 @@
 {% extends "layout.html" %}
 
 {% block header %}
-    <h1>{% block title %}Prepare quiz{% endblock %}</h1>
+    <h1>{% block title %}<title>Prepare quiz</title>{% endblock %}</h1>
     <h2>Input number of quiz questions and choose which generation you desire to review.</h2>
 {% endblock %}
 
 {% block content %}
-    <h5>This page provides a summary of the data demographics and quiz related information.</h5>
+    <h5>This page shows how many persons in each generation have a photo.
+      <br/>Click the radio button to choose a specific generation (default: All)
+      <br/>Input how many photos you want in the quiz (default: 5)
+      <br/>Then click the 'Start Quiz' button
+    </h5>
+
     {% if zipped_gen %}
           <table class="table table-striped">
+            <caption style="text-align:center">Number of photos available for each generation</caption>
             <thead>
               <tr>
-                <th>Generation</th>
-                <th>Total number names</th>
-                <th>Possible quiz questions</th>
+                <th id="generation">Generation</th>
+                <th id="number_names">Total number names</th>
+                <th id="number_questions">Possible quiz questions</th>
               </tr>
             </thead>
             <form method="post">
@@ -22,8 +28,14 @@
                         <tr style="height: 10px">
                               <td>
                                <div class="radio">
-                                <label><input type="radio" name="optradio" value="{{ generation[0] }}">
-                                {{  generation[0] }}</label>
+                                  {% if generation[0] == "All" %}
+                                    <label><input type="radio" name="optradio" 
+                                      value="{{ generation[0] }}" checked>
+                                  {% else %}
+                                    <label><input type="radio" name="optradio" 
+                                        value="{{ generation[0] }}">
+                                  {% endif %}
+                                  {{  generation[0] }}</label>
                                 </div>
                               </td>
                             <td>{{ generation[1] }}</td>
@@ -31,10 +43,21 @@
                         </tr>
                     {% endfor %}
                 </tbody>
-                <label for="num_quiz_questions">
-                    Enter number of questions for the quiz:</label>
-                <input type="text" id=num_quiz_questions name="num_questions" value="5">
-              <button type="submit" class="btn btn-lg btn-primary" style="float: right;">Start Quiz</button>
+                <div class="container">
+                  <div class="form-group row">
+                    <div class="col-sm-4">
+                      <label for="num_quiz_questions">
+                        Enter number of questions for the quiz:
+                      </label>
+                    </div>
+                    <div class="col-sm-4">
+                      <input type="text" style="width:30px" 
+                        id=num_questions name="num_questions" value="5">
+                      <button type="submit" class="btn btn-sm btn-primary" 
+                        style="float: right;">Start Quiz</button>
+                    </div>
+                  </div>
+                </div>
             </form>
           </table>
     {% endif %}

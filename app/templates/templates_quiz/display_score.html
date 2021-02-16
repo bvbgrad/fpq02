@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    {% block title %}<title>Quiz Summary</title>{% endblock %}
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/tag_photo.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div style="text-align:center">
+        <h3>Your score on this quiz is {{ percent_correct }}%
+            <a href="{{ url_for('main.quiz_prep') }}" class="btn btn-info" role="button">
+                New Quiz</a>
+        </h3>
+        <h4>{{ correct_answers }} of {{ photo_list[1][1] }} persons were identified correctly.
+        <br/>The correct answer is shown under the photo.</h4>
+    </div>
+
+    <div class="slideshow-container">
+        {% if photo_list %}
+        
+        {% for photo in photo_list %}
+            <div class="mySlides" style="text-align: center">
+                <div class="numbertext">{{ photo[0] }} / {{ photo[1] }}</div>
+                {% if photo[5] == "correct" %}
+                    <div class="text-success">This person was identified correctly.</div>
+                {% elif photo[5] == "wrong" %}
+                    <div class="text-danger">This person was <strong>not</strong> identified correctly.</div>
+                {% else %}
+                    <div>There was no answer for this person.</div>
+                {% endif %}
+                <a class="prev" style="width: 200%" onclick="plusSlides(-1)">&#10094;</a>
+                <img src="{{ url_for('static', filename='images/' + photo[2]) }}"
+                    alt={{photo[2]}}>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                <div>{{ photo[4] }}</div>
+                <div>{{ photo[3] }}</div>
+            </div>
+            {% endfor %}
+
+            <div style="text-align:center">
+                {% for photo in photo_list %}
+                    <span class="dot" onclick="currentSlide(loop.index)"></span>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+    </div>
+
+    <div style="text-align:center">
+        To navigate through the photos -
+        <br>please click on the angle brackets on the side of the photo
+        <br>or press the right & left arrow keys on the keyboard.
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    document.onkeydown = function(event) {
+        switch (event.keyCode) {
+        case 37:
+            console.log("key 37")
+            plusSlides(-1)
+        break;
+        case 39:
+            console.log("key 39")
+            plusSlides(1)
+            break;
+        }
+    };
+
+    document.onkeydown = function(event) {
+        switch (event.keyCode) {
+        case 37:
+                plusSlides(-1)
+            break;
+        case 39:
+                plusSlides(1)
+            break;
+        }
+    };
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+    showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    var dots = document.getElementsByClassName("dot");
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex-1].style.display = "block";
+    dots[slideIndex-1].className += " active";
+
+    }
+</script>
+{% endblock %}

@@ -34,7 +34,8 @@
 
         <div style="text-align:center">
             {% for photo in photo_list %}
-                 <span class="dot" onclick="currentSlide({{ photo[0] }})"></span>
+                 <span class="dot" onclick="currentSlide(loop.index)"></span>
+                 <!-- <span class="dot" onclick="currentSlide({{ photo[0] }})"></span> -->
             {% endfor %}
         </div>
 
@@ -42,43 +43,44 @@
 
 {% endblock %}
 
-{% block script %}
-var slideIndex = 1;
-showSlides(slideIndex);
+{% block javascripts %}
+<script>
+    var slideIndex = 1;
+    showSlides(slideIndex);
 
-document.onkeydown = function(event) {
-    switch (event.keyCode) {
-       case 37:
-            plusSlides(-1)
-          break;
-       case 39:
-            plusSlides(1)
-          break;
+    document.onkeydown = function(event) {
+        switch (event.keyCode) {
+        case 37:
+                plusSlides(-1)
+            break;
+        case 39:
+                plusSlides(1)
+            break;
+        }
+    };
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
     }
-};
 
-function plusSlides(n) {
-    showSlides(slideIndex += n);
+    function currentSlide(n) {
+    showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+    var i;
+    var slides = document.getElementsByClassName("mySlides");
+    var dots = document.getElementsByClassName("dot");
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex-1].style.display = "block";
+    dots[slideIndex-1].className += " active";
 }
-
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
-
-function showSlides(n) {
-  var i;
-  var slides = document.getElementsByClassName("mySlides");
-  var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-      dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-
-}
+</script>
 {% endblock %}
