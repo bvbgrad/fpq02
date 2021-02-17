@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 
 from app import db, login
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Column, Integer, DateTime
 from sqlalchemy.orm import relationship
 
 USER_ID = 'user.id'
@@ -131,15 +131,15 @@ class Person(db.Model):
             format(self.id, self.surname, self.given_names, self.gender, self.year_born)
 
 
-# class Quiz(db.Model):
+class Quiz(db.Model):
 
-#     __table__ = 'quiz'
+    __table__ = 'quiz'
 
-#     quiz_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-#     # user_idFK == 0 means anonymous guest user took the quiz
-#     user_idFK = db.Column(db.Integer, db.ForeignKey(USER_ID), default=0)
+    quiz_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    # user_idFK == 0 means anonymous guest user took the quiz
+    user_idFK = db.Column(db.Integer, db.ForeignKey(USER_ID), default=0)
 
-#     def __repr__(self):
-#         return "[Id: {}, date: {}, User: {}]".\
-#             format(self.quiz_id, self.timestamp, self.user_idFK)
+    def __repr__(self):
+        return "[Id: {}, date: {}, User: {}]".\
+            format(self.quiz_id, self.timestamp, self.user_idFK)
