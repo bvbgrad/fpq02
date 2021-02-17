@@ -54,11 +54,11 @@ def quiz_prep():
             chosen_generation = 'All'
         if chosen_generation == 'All':
             tagged_photo_list = get_all_tagged_photos()
-        elif get_photo_quiz_data(chosen_generation, count=True) > 0:
-            tagged_photo_list = get_photo_quiz_data(chosen_generation)
         else:
-            flash("Error: No available quiz photos for generation '{}'".format(chosen_generation))
-            return redirect(url_for('quiz_prep'))
+            tagged_photo_list = get_photo_quiz_data(chosen_generation)
+        # else:
+        #     flash("Error: No available quiz photos for generation '{}'".format(chosen_generation))
+        #     return redirect(url_for('main.quiz_prep'))
 
         number_tagged_photos = len(tagged_photo_list)
         logger.info(__name__ + " {} tagged photos".format(number_tagged_photos))

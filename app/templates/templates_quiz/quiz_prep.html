@@ -6,11 +6,14 @@
 {% endblock %}
 
 {% block content %}
-    <h5>This page shows how many persons in each generation have a photo.
-      <br/>Click the radio button to choose a specific generation (default: All)
-      <br/>Input how many photos you want in the quiz (default: 5)
-      <br/>Then click the 'Start Quiz' button
-    </h5>
+  <h5>This page shows how many persons in each generation have a photo
+    <br/>1. Click a radio button to choose a specific generation (default: All)
+  </h5>
+  (Generations with '0' possible quiz questions can not be selected)
+  <h5>2. Input how many photos you want in the quiz (default = 5)</h5>
+  (The number of photos will be adjusted to the number of possible quiz questions
+   <br/>if it is smaller than the default or the number requested.)
+  <h5>3. Click the 'Start Quiz' button to begin the quiz</h5>
 
     {% if zipped_gen %}
           <table class="table table-striped">
@@ -26,8 +29,9 @@
                 <tbody>
                     {% for generation in zipped_gen %}
                         <tr style="height: 10px">
-                              <td>
-                               <div class="radio">
+                            <td>
+                            {% if generation[2] > 0 %}
+                                <div class="radio">
                                   {% if generation[0] == "All" %}
                                     <label><input type="radio" name="optradio" 
                                       value="{{ generation[0] }}" checked>
@@ -37,7 +41,10 @@
                                   {% endif %}
                                   {{  generation[0] }}</label>
                                 </div>
-                              </td>
+                            {% else %}
+                                <div><label>{{  generation[0] }}</label></div>
+                            {% endif %}
+                            </td>
                             <td>{{ generation[1] }}</td>
                             <td>{{ generation[2] }}</td>
                         </tr>
